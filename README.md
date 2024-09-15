@@ -1,27 +1,222 @@
-# Getting Started
 
-### Reference Documentation
+#  DOCKER
 
-For further reference, please consider the following sections:
+============= docker login =============
+```
+docker login   --username serenaskin     --password 123456789
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.3.3/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.3.3/maven-plugin/build-image.html)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/3.3.3/reference/htmlsingle/index.html#web)
+docker login   -u         serenaskin     -p        123456789
+```
 
-### Guides
+============= nginx =============
+DIŞ_PORT:İÇ_PORT
+```
+docker run     -it     -d     -p 9991:80     --name my-nginx      nginx
+```
+http://localhost:9991
 
-The following guides illustrate how to use some features concretely:
+============= postgres =============
+```
+docker run  --name my-postgres   -p 9999:5432  -e POSTGRES_PASSWORD=123456789  -d  postgres
+```
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+============= mysql =============
+```
+docker run  --name my-mysql      -p 9990:3306  -e MYSQL_ROOT_PASSWORD=123456789 -d  mysql 
+```
 
-### Maven Parent overrides
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the
-parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
 
+============= Docker container adını değiştirne  =============
+```
+docker container rename my-app5 my-app1
+```
+
+
+
+============= kendi projemizi Docker image haline çevimek =============
+```
+docker build  --build-arg JAR_FILE=target/devops-001-hello-1.0.1.jar   --tag    serenaskin/devops-001-hello:v001   .
+
+docker build  --build-arg JAR_FILE=target/devops-001-hello-1.0.2.jar   --tag    serenaskin/devops-001-hello:v002   .
+
+docker build  --build-arg JAR_FILE=target/devops-001-hello-1.0.2.jar   --tag    serenaskin/devops-001-hello:latest   .
+```
+
+
+============= kendi projemizi Docker image'den container haline çevimek =============
+```
+docker run     -it     -d     -p 8081:8080     --name my-app1      serenaskin/devops-001-hello
+
+docker run     -it     -d     -p 8082:8080     --name my-app2      serenaskin/devops-001-hello
+
+docker run     -it     -d     -p 8083:8080     --name my-app3      serenaskin/devops-001-hello:v001
+
+docker run     -it     -d     -p 8084:8080     --name my-app4      serenaskin/devops-001-hello:v002
+
+docker run     -it     -d     -p 8085:8080     --name my-app5      serenaskin/devops-001-hello:latest
+```
+
+http://localhost:8081 </br>
+http://localhost:8082 </br>
+http://localhost:8083 </br>
+http://localhost:8084 </br>
+http://localhost:8085 </br>
+
+
+============= Docker Hub'dan image çekmek =============
+
+```
+docker pull serenaskin/devops-001-hello:v001
+
+docker pull serenaskin/devops-001-hello:v002
+
+docker pull serenaskin/devops-001-hello:latest
+
+docker pull serenaskin/devops-001-hello
+```
+
+
+
+### ============== network ==============
+### networkleri listele
+
+```
+docker network ls
+```
+
+### yeni bir network oluştur
+```
+docker network create my-network
+```
+
+### network tipini değiştirmek istiyorsanız --driver parametresi
+```
+docker network create --driver host
+```
+
+
+### network bilgisi ve onu kullanan containerlar
+```
+docker network inspect my-network
+```
+
+
+### networke container ekleme
+```
+docker network connect my-network my-app1
+docker network connect my-network my-app2
+docker network connect my-network my-app3
+docker network connect my-network my-app4
+```
+
+### network bilgisi ve onu kullanan containerlar
+```
+docker network inspect my-network
+```
+
+### networke container çıkarma
+```
+docker network disconnect my-app4
+```
+
+
+### network bilgisi ve onu kullanan containerlar
+```
+docker network inspect my-network
+```
+
+### networkü silme
+```
+docker network rm my-network
+```
+
+
+### ============== volume ==============
+```
+docker volume ls
+```
+### Yeni bir volume oluşturmak
+```
+docker volume create my-volume
+```
+
+```
+docker volume ls
+```
+
+```
+docker volume inspect my-volume
+```
+
+### bir volume silmek
+```
+docker volume rm my-volume
+```
+
+### kullanılmayan tüm volumeleri silmek
+```
+docker volume prune
+```
+
+### ============= docker-compose ===================
+```
+docker compose -f docker-compose.yml up
+```
+
+```
+docker ps
+```
+
+```
+docker container ls
+```
+
+```
+docker-compose logs mongo
+docker-compose logs -f  mongo
+```
+
+
+```
+docker compose -f docker-compose.yml down
+```
+
+
+
+### ============ Kubernetes ===========
+
+### Docker Hub'daki imajı, yerel makinemde Docker kullanarak çekiyor ve bir container olarak çalıştırıyorum.
+```
+docker run     -it     -d     -p 8085:8080     --name my-app5      serenaskin/devops-001-hello:latest
+```
+
+### Docker Hub'dan imajı container olarak çekip Kubernetes'teki Pod içinde çalıştırıyorum.
+```
+kubectl run my-pod1 --image=serenaskin/devops-001-hello:latest
+kubectl run my-pod2 --image=serenaskin/devops-001-hello:v001
+kubectl run my-pod3 --image=serenaskin/devops-001-hello:v002
+kubectl run my-pod4 --image=serenaskin/devops-001-hello:v002
+kubectl run my-pod5 --image=serenaskin/devops-001-hello:latest
+kubectl run my-pod6 --image=serenaskin/devops-001-hello:latest
+kubectl run my-pod7 --image=serenaskin/devops-001-hello:v003
+kubectl run my-pod8 --image=mysql
+kubectl run my-pod9 --image=postgres
+```
+
+```
+kubectl get nodes
+kubectl get node
+```
+
+```
+kubectl get pods
+kubectl get pod
+```
+
+
+### Pods
+
+### Deployment
+
+### Service
